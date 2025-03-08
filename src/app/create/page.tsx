@@ -15,6 +15,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 
 import { z } from "zod";
+import Image from "next/image";
 
 const formSchema = z.object({
   prompt: z
@@ -33,8 +34,15 @@ const Page = () => {
     },
   });
 
-  function onSubmit(values: z.infer<typeof formSchema>) {
-    console.log(values);
+  async function onSubmit(values: z.infer<typeof formSchema>) {
+    const response = await fetch("/api/image", {
+      method: "POST",
+      body: JSON.stringify(values),
+    });
+
+    const data = await response.json();
+    console.log(data.url);
+    setOutputImage(data.url);
   }
 
   return (
@@ -79,7 +87,17 @@ const Page = () => {
           </div>
         </div>
 
-        <div className="__output flex-[1] bg-white/5 rounded-lg"></div>
+        <div className="__output flex-[1] bg-white/5 rounded-lg">
+          {outputImage && (
+            <Image
+              alt="output"
+              className="w-full h-full object-contain"
+              src={outputImage}
+              width={300}
+              height={300}
+            />
+          )}
+        </div>
       </div>
     </div>
   );
