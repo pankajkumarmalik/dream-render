@@ -1,5 +1,8 @@
 "use client";
+import { Button } from "@/components/ui/button";
 import { motion } from "framer-motion";
+import Link from "next/link";
+import { MdKeyboardDoubleArrowRight } from "react-icons/md";
 
 export default function Home() {
   return (
@@ -37,6 +40,30 @@ export default function Home() {
         >
           Type your dream image and render it in a second, with power of AI.
         </motion.p>
+
+        <motion.div
+          initial={{
+            opacity: 0,
+            scale: 0.95,
+            filter: "blur(10px)",
+          }}
+          animate={{
+            opacity: 1,
+            scale: 1,
+            filter: "blur(0px)",
+          }}
+          transition={{ duration: 0.35, delay: 0.7 }}
+        >
+          <Link href="/create">
+            <Button className="cursor-pointer mt-5 font-semibold px-6 py-3 animate-bounce inline-flex items-center gap-2 leading-none">
+              <span className="flex items-center">Start Creating</span>
+              <MdKeyboardDoubleArrowRight
+                size={32}
+                className="translate-y-[1px]"
+              />
+            </Button>
+          </Link>
+        </motion.div>
       </div>
     </div>
   );
