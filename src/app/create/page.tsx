@@ -4,7 +4,6 @@ import { Button } from "@/components/ui/button";
 import {
   Form,
   FormControl,
-  FormDescription,
   FormField,
   FormItem,
   FormMessage,
@@ -13,19 +12,28 @@ import { Input } from "@/components/ui/input";
 import React, { useState } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
-
 import { z } from "zod";
 import Image from "next/image";
+import { useSession, signIn } from "next-auth/react";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+} from "@/components/ui/dialog";
 
 const formSchema = z.object({
   prompt: z
     .string()
-    .min(5, { message: "Prompt must be atleast 5 characters long" }),
+    .min(5, { message: "Prompt must be at least 5 characters long" }),
 });
 
 const Page = () => {
+  const { data: session } = useSession();
   const [outputImage, setOutputImage] = useState<string | null>(null);
   const [loading, setLoading] = useState<boolean>(false);
+  const [open, setOpen] = useState(false); // State for login popup
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -35,27 +43,38 @@ const Page = () => {
   });
 
   async function onSubmit(values: z.infer<typeof formSchema>) {
-    const response = await fetch("/api/image", {
-      method: "POST",
-      body: JSON.stringify(values),
-    });
+    if (!session) {
+      setOpen(true); // Show login popup if user is logged out
+      return;
+    }
 
-    const data = await response.json();
-    console.log(data.url);
-    setOutputImage(data.url);
+    try {
+      setLoading(true);
+      const response = await fetch("/api/image", {
+        method: "POST",
+        body: JSON.stringify(values),
+      });
+
+      const data = await response.json();
+      setOutputImage(data.url);
+    } catch (error) {
+      console.log(error);
+    } finally {
+      setLoading(false);
+    }
   }
 
   return (
     <div className="w-full p-3 h-dvh flex justify-start items-center pt-[72px] flex-col">
-      <div className="w-full border border-red-500 p-3">
+      <div className="w-full border p-3">
         <h1 className="text-center font-bold text-white text-4xl">Create</h1>
         <p className="text-white/60 text-center">
           Generate unlimited images from text for FREE
         </p>
       </div>
 
-      <div className="flex border border-green-500 w-full gap-3 h-full">
-        <div className="__form flex-[2] gap-2 flex justify-center items-start flex-col">
+      <div className="flex border w-full gap-3 h-full">
+        <div className="__form flex-[2] gap-3 flex justify-center items-start flex-col p-3">
           <p className="text-left text-sm text-white/80">
             Type your prompt below to create any image you can imagine!
           </p>
@@ -81,14 +100,16 @@ const Page = () => {
                     </FormItem>
                   )}
                 />
-                <Button type="submit">Generate</Button>
+                <Button loading={loading} type="submit">
+                  Generate
+                </Button>
               </form>
             </Form>
           </div>
         </div>
 
-        <div className="__output flex-[1] bg-white/5 rounded-lg">
-          {outputImage && (
+        <div className="__output flex-[1] bg-white/5 rounded-lg relative overflow-hidden">
+          {outputImage ? (
             <Image
               alt="output"
               className="w-full h-full object-contain"
@@ -96,9 +117,35 @@ const Page = () => {
               width={300}
               height={300}
             />
+          ) : (
+            <div className="w-full h-full flex justify-center items-center text-white/70 text-center p-3">
+              Enter your prompt and hit Generate!
+            </div>
           )}
         </div>
       </div>
+
+      {/*Login Popup */}
+      <Dialog open={open} onOpenChange={setOpen}>
+        <DialogContent className="max-w-sm bg-black text-white p-6 rounded-lg shadow-lg">
+          <DialogHeader>
+            <DialogTitle className="text-lg font-semibold">
+              Login Required
+            </DialogTitle>
+            <DialogDescription className="text-gray-400">
+              Please log in to generate images.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="flex justify-center mt-4">
+            <Button
+              onClick={() => signIn("google")}
+              className="w-full font-semibold"
+            >
+              Login
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };
