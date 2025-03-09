@@ -65,7 +65,7 @@ const Page = () => {
   }
 
   return (
-    <div className="w-full p-3 h-dvh flex justify-start items-center pt-[72px] flex-col">
+    <div className="w-full p-3 min-h-dvh h-full flex justify-start items-center pt-[72px] flex-col">
       <div className="w-full border p-3">
         <h1 className="text-center font-bold text-white text-4xl">Create</h1>
         <p className="text-white/60 text-center">
@@ -73,9 +73,9 @@ const Page = () => {
         </p>
       </div>
 
-      <div className="flex border w-full gap-3 h-full">
-        <div className="__form flex-[2] gap-3 flex justify-center items-start flex-col p-3">
-          <p className="text-left text-sm text-white/80">
+      <div className="flex w-full gap-3 h-[calc(100dvh-200px)] md:flex-row flex-col">
+        <div className="__form h-full flex-[2] gap-3 flex justify-center items-start flex-col p-3">
+          <p className="text-center w-full lg:text-left text-sm text-white/80">
             Type your prompt below to create any image you can imagine!
           </p>
           <div className="flex gap-2 w-full">
@@ -88,7 +88,7 @@ const Page = () => {
                   control={form.control}
                   name="prompt"
                   render={({ field }) => (
-                    <FormItem className="w-full">
+                    <FormItem className="w-full max-w-full lg:max-w-[70%]">
                       <FormControl>
                         <Input
                           placeholder="a cat sitting over a sofa..."
@@ -108,7 +108,7 @@ const Page = () => {
           </div>
         </div>
 
-        <div className="__output flex-[1] bg-white/5 rounded-lg relative overflow-hidden">
+        <div className="__output min-h-[300px] lg:min-h-full lg:h-full flex-[1] bg-white/5 rounded-lg relative overflow-hidden">
           {outputImage ? (
             <Image
               alt="output"

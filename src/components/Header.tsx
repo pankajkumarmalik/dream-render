@@ -13,7 +13,7 @@ import { useRouter } from "next/navigation";
 const Header = () => {
   const [initialLoading, setInitialLoading] = useState<boolean>(true);
   const { data: session, status } = useSession();
-
+  const [open, setOpen] = useState(false); // Control popover state
   const router = useRouter();
 
   useEffect(() => {
@@ -37,9 +37,9 @@ const Header = () => {
           </Button>
         </div>
       ) : (
-        <Popover>
-          <PopoverTrigger>
-            <Avatar className="cursor-pointer">
+        <Popover open={open} onOpenChange={setOpen}>
+          <PopoverTrigger asChild>
+            <Avatar className="cursor-pointer" onClick={() => setOpen(true)}>
               <AvatarImage src={session.user?.image || ""} />
               <AvatarFallback>
                 {session.user?.name?.charAt(0).toUpperCase() || ""}
@@ -50,14 +50,20 @@ const Header = () => {
             <Button
               className="w-full"
               variant="secondary"
-              onClick={() => router.push("/profile")}
+              onClick={() => {
+                setOpen(false); // Close popover
+                router.push("/profile");
+              }}
             >
               My Images
             </Button>
             <Button
-              className="w-full"
+              className="w-full flex items-center gap-2"
               variant="destructive"
-              onClick={() => signOut({ callbackUrl: "/" })}
+              onClick={() => {
+                setOpen(false); // Close popover before signing out
+                signOut({ callbackUrl: "/" });
+              }}
             >
               <CiLogout />
               Logout
