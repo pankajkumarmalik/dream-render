@@ -3,13 +3,11 @@
 import { Button } from "@/components/ui/button";
 import { motion } from "framer-motion";
 import { MdKeyboardDoubleArrowRight } from "react-icons/md";
-import { useSession } from "next-auth/react";
-import { useRouter } from "next/navigation";
 import Link from "next/link";
 
 export default function Home() {
-  const { data: session } = useSession();
-  const router = useRouter();
+  // const { data: session } = useSession();
+  // const router = useRouter();
   //const [open, setOpen] = useState(false);
 
   // const handleStartCreating = () => {
