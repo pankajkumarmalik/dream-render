@@ -22,6 +22,10 @@ import {
   DialogTitle,
   DialogDescription,
 } from "@/components/ui/dialog";
+import { Download } from "lucide-react";
+import { motion } from "framer-motion";
+import { BiLoaderCircle } from "react-icons/bi";
+import Loader from "@/components/loader/Loader";
 
 const formSchema = z.object({
   prompt: z
@@ -34,6 +38,27 @@ const Page = () => {
   const [outputImage, setOutputImage] = useState<string | null>(null);
   const [loading, setLoading] = useState<boolean>(false);
   const [open, setOpen] = useState(false); // State for login popup
+
+  const handleDownload = async () => {
+    if (!outputImage) return;
+
+    try {
+      const response = await fetch(outputImage); // Fetch the image
+      const blob = await response.blob(); // Convert response to Blob
+      const url = URL.createObjectURL(blob); // Create a temporary URL
+
+      const link = document.createElement("a");
+      link.href = url;
+      link.download = "generated-image.png"; // Filename for download
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+
+      URL.revokeObjectURL(url); // Cleanup the object URL
+    } catch (error) {
+      console.error("Error downloading image:", error);
+    }
+  };
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -130,31 +155,69 @@ const Page = () => {
                     </FormItem>
                   )}
                 />
-                <Button type="submit" disabled={loading}>
-                  {loading ? "Generating..." : "Generate"}
+                <Button
+                  disabled={loading}
+                  className={loading ? "opacity-50 pointer-events-none" : ""}
+                  type="submit"
+                >
+                  {loading ? (
+                    <>
+                      <BiLoaderCircle className="inline-block animate-spin" />
+                      Generating...
+                    </>
+                  ) : (
+                    "Generate"
+                  )}
                 </Button>
               </form>
             </Form>
           </div>
         </div>
 
-        <div className="__output min-h-[300px] lg:min-h-full lg:h-full flex-[1] bg-white/5 rounded-lg relative overflow-hidden flex justify-center items-center">
+        <div className="__output min-h-[300px] lg:min-h-full lg:h-full flex-[1] bg-white/5 rounded-lg relative overflow-hidden flex flex-col justify-center items-center gap-3 p-3">
           {loading ? (
-            <p className="text-white/70 text-center p-3">
-              Waiting for image to generate...
-            </p>
+            // <p className="text-white/70 text-center p-3">
+            //   Waiting for image to generate...
+            // </p>
+            <Loader />
           ) : outputImage === "error" ? (
             <p className="text-red-500 text-center p-3">
               AI is busy in generating, try again!
             </p>
           ) : outputImage ? (
-            <Image
-              alt="Generated Image"
-              className="w-full h-full object-contain"
-              src={outputImage}
-              width={300}
-              height={300}
-            />
+            <motion.div
+              initial={{ opacity: 0, scale: 0.95, filter: "blur(10px)" }}
+              animate={{ opacity: 1, scale: 1, filter: "blur(0px)" }}
+              transition={{ duration: 0.35, delay: 1.2 }}
+              className="relative w-full h-full flex flex-col justify-center items-center"
+            >
+              <Image
+                alt="Generated Image"
+                className="w-full h-full object-contain"
+                src={outputImage}
+                width={300}
+                height={300}
+              />
+
+              {/* Conditionally show the full button on md and larger screens */}
+              <Button
+                onClick={handleDownload}
+                className="mt-3 w-full hidden md:block"
+                variant="outline"
+              >
+                Download Image
+              </Button>
+
+              {/* Show an icon-only button on small screens */}
+              <motion.button
+                onClick={handleDownload}
+                whileHover={{ scale: 1.1 }}
+                whileTap={{ scale: 0.9 }}
+                className="absolute bottom-2 right-2 p-2 bg-white/30 rounded-full shadow-md md:hidden"
+              >
+                <Download className="w-6 h-6 text-white" />
+              </motion.button>
+            </motion.div>
           ) : (
             <p className="text-white/70 text-center p-3">
               Enter your prompt and hit Generate!
