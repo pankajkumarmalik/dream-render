@@ -29,8 +29,6 @@ export async function POST(request: NextRequest) {
     prompt
   )}?seed=${randomSeed}&width=512&height=512&nologo=True`;
 
-  await fetch(imageURL);
-
   await prisma.post.create({
     data: {
       prompt: prompt,
@@ -40,7 +38,16 @@ export async function POST(request: NextRequest) {
     },
   });
 
-  return NextResponse.json({ url: imageURL });
+  const response = NextResponse.json({ url: imageURL });
+
+  setTimeout(async () => {
+    try {
+      await fetch(imageURL); // This triggers image generation in the background
+    } catch (error) {
+      console.error("Error triggering Pollinations API:", error);
+    }
+  }, 0);
+  return response;
 }
 
 export async function GET() {

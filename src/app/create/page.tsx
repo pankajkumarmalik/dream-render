@@ -37,31 +37,61 @@ const Page = () => {
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
-    defaultValues: {
-      prompt: "",
-    },
+    defaultValues: { prompt: "" },
   });
 
   async function onSubmit(values: z.infer<typeof formSchema>) {
     if (!session) {
-      setOpen(true); // Show login popup if user is logged out
+      setOpen(true); // Show login popup if user is not logged in
       return;
     }
 
+    setLoading(true);
+    setOutputImage(null); // Clear previous image
+
     try {
-      setLoading(true);
       const response = await fetch("/api/image", {
         method: "POST",
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify(values),
       });
 
       const data = await response.json();
-      setOutputImage(data.url);
+      if (!response.ok)
+        throw new Error(data.error || "Image generation failed");
+
+      await checkImageReady(data.url); // Poll until the image is available
     } catch (error) {
-      console.log(error);
+      console.error("Error generating image:", error);
     } finally {
       setLoading(false);
     }
+  }
+
+  async function checkImageReady(url: string) {
+    const maxRetries = 6; // 20 seconds (6 * 3s = 18s, close to 20s)
+    let retries = 0;
+
+    while (retries < maxRetries) {
+      try {
+        const response = await fetch(url, { method: "HEAD" });
+
+        if (response.ok) {
+          setOutputImage(url); // Set image once available
+          return;
+        }
+
+        console.log("Checking is image ready ? ");
+      } catch (error) {
+        console.error(`Checking image status (Attempt ${retries + 1}):`, error);
+      }
+
+      retries++;
+      await new Promise((resolve) => setTimeout(resolve, 3000)); // Retry after 3s
+    }
+
+    // If the image isn't ready after 20s, show an error message
+    setOutputImage("error");
   }
 
   return (
@@ -100,32 +130,40 @@ const Page = () => {
                     </FormItem>
                   )}
                 />
-                <Button loading={loading} type="submit">
-                  Generate
+                <Button type="submit" disabled={loading}>
+                  {loading ? "Generating..." : "Generate"}
                 </Button>
               </form>
             </Form>
           </div>
         </div>
 
-        <div className="__output min-h-[300px] lg:min-h-full lg:h-full flex-[1] bg-white/5 rounded-lg relative overflow-hidden">
-          {outputImage ? (
+        <div className="__output min-h-[300px] lg:min-h-full lg:h-full flex-[1] bg-white/5 rounded-lg relative overflow-hidden flex justify-center items-center">
+          {loading ? (
+            <p className="text-white/70 text-center p-3">
+              Waiting for image to generate...
+            </p>
+          ) : outputImage === "error" ? (
+            <p className="text-red-500 text-center p-3">
+              AI is busy in generating, try again!
+            </p>
+          ) : outputImage ? (
             <Image
-              alt="output"
+              alt="Generated Image"
               className="w-full h-full object-contain"
               src={outputImage}
               width={300}
               height={300}
             />
           ) : (
-            <div className="w-full h-full flex justify-center items-center text-white/70 text-center p-3">
+            <p className="text-white/70 text-center p-3">
               Enter your prompt and hit Generate!
-            </div>
+            </p>
           )}
         </div>
       </div>
 
-      {/*Login Popup */}
+      {/* Login Popup */}
       <Dialog open={open} onOpenChange={setOpen}>
         <DialogContent className="max-w-sm bg-black text-white p-6 rounded-lg shadow-lg">
           <DialogHeader>
