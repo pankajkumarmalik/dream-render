@@ -26,6 +26,7 @@ import { Download } from "lucide-react";
 import { motion } from "framer-motion";
 import { BiLoaderCircle } from "react-icons/bi";
 import Loader from "@/components/loader/Loader";
+import Link from "next/link";
 
 const formSchema = z.object({
   prompt: z
@@ -121,12 +122,35 @@ const Page = () => {
 
   return (
     <div className="w-full p-3 min-h-dvh h-full flex justify-start items-center pt-[72px] flex-col">
-      <div className="w-full border p-3">
-        <h1 className="text-center font-bold text-white text-4xl">Create</h1>
-        <p className="text-white/60 text-center">
-          Generate unlimited images from text for FREE
-        </p>
+      <div className="relative w-full p-6 rounded-lg shadow-lg overflow-hidden bg-black md:mb-2">
+        {/* Animated Background Gradient */}
+        <div className="absolute inset-0 bg-gradient-to-br from-gray-600 via-black to-blue-900 animate-gradientMove"></div>
+
+        {/* Content */}
+        <div className="relative z-10 text-center">
+          <h1 className="font-extrabold text-gray-200 text-5xl tracking-wide">
+            Create
+          </h1>
+          <p className="text-gray-400 text-lg md:text-xl mt-2">
+            Generate unlimited images from text for
+            <span className="font-bold text-gray-100"> FREE!</span>
+          </p>
+        </div>
       </div>
+
+      <style>
+        {`
+    @keyframes gradientMove {
+      0% { background-position: 0% 40%; }
+      50% { background-position: 100% 60%; }
+      100% { background-position: 0% 40%; }
+    }
+    .animate-gradientMove {
+      background-size: 250% 250%;
+      animation: gradientMove 10s infinite alternate ease-in-out;
+    }
+  `}
+      </style>
 
       <div className="flex w-full gap-3 h-[calc(100dvh-200px)] md:flex-row flex-col">
         <div className="__form h-full flex-[2] gap-3 flex justify-center items-start flex-col p-3">
@@ -191,13 +215,15 @@ const Page = () => {
               transition={{ duration: 0.35, delay: 1.2 }}
               className="relative w-full h-full flex flex-col justify-center items-center"
             >
-              <Image
-                alt="Generated Image"
-                className="w-full h-full object-contain"
-                src={outputImage}
-                width={300}
-                height={300}
-              />
+              <Link href="/profile" className="block w-full h-full">
+                <Image
+                  alt="Generated Image"
+                  className="w-full h-full object-contain"
+                  src={outputImage}
+                  width={300}
+                  height={300}
+                />
+              </Link>
 
               {/* Conditionally show the full button on md and larger screens */}
               <Button

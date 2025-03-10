@@ -6,13 +6,15 @@ import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { MdKeyboardDoubleArrowRight } from "react-icons/md";
 import Carousel from "@/components/Carousel";
-// Ensure correct import
 
 function LandingPage() {
   return (
     <div className="w-full h-screen flex flex-col justify-center items-center overflow-hidden relative bg-black text-white">
+      {/* Animated Background Gradient */}
+      <div className="absolute inset-0 bg-gradient-to-br from-gray-600 via-black to-blue-900 animate-gradientMove"></div>
+
       {/* Main Content */}
-      <div className="flex flex-col items-center gap-5">
+      <div className="relative z-10 flex flex-col items-center gap-5">
         <motion.h1
           initial={{ opacity: 0, scale: 0.95, filter: "blur(10px)" }}
           animate={{ opacity: 1, scale: 1, filter: "blur(0px)" }}
@@ -47,7 +49,7 @@ function LandingPage() {
         </motion.div>
       </div>
 
-      {/* Carousel Section - Now takes only small height */}
+      {/* Carousel Section */}
       <motion.div
         initial={{
           opacity: 0,
@@ -61,6 +63,21 @@ function LandingPage() {
       >
         <Carousel />
       </motion.div>
+
+      {/* Gradient Animation Style */}
+      <style>
+        {`
+          @keyframes gradientMove {
+            0% { background-position: 0% 40%; }
+            50% { background-position: 100% 60%; }
+            100% { background-position: 0% 40%; }
+          }
+          .animate-gradientMove {
+            background-size: 250% 250%;
+            animation: gradientMove 15s infinite alternate ease-in-out;
+          }
+        `}
+      </style>
     </div>
   );
 }
