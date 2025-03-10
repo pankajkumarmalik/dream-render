@@ -121,17 +121,17 @@ const Page = () => {
   }
 
   return (
-    <div className="w-full p-3 min-h-dvh h-full flex justify-start items-center pt-[72px] flex-col">
-      <div className="relative w-full p-6 rounded-lg shadow-lg overflow-hidden bg-black md:mb-2">
+    <div className="w-full p-3 h-screen flex justify-start items-center pt-[72px] flex-col  overflow-hidden">
+      <div className="relative w-full p-4 md:p-6 rounded-lg shadow-lg overflow-hidden bg-black md:mb-2">
         {/* Animated Background Gradient */}
         <div className="absolute inset-0 bg-gradient-to-br from-gray-600 via-black to-blue-900 animate-gradientMove"></div>
 
         {/* Content */}
         <div className="relative z-10 text-center">
-          <h1 className="font-extrabold text-gray-200 text-5xl tracking-wide">
+          <h1 className="font-extrabold text-gray-200 text-3xl sm:text-4xl md:text-5xl tracking-wide">
             Create
           </h1>
-          <p className="text-gray-400 text-lg md:text-xl mt-2">
+          <p className="text-gray-400 text-sm md:text-xl mt-1 md:mt-2">
             Generate unlimited images from text for
             <span className="font-bold text-gray-100"> FREE!</span>
           </p>
@@ -140,16 +140,16 @@ const Page = () => {
 
       <style>
         {`
-    @keyframes gradientMove {
-      0% { background-position: 0% 40%; }
-      50% { background-position: 100% 60%; }
-      100% { background-position: 0% 40%; }
-    }
-    .animate-gradientMove {
-      background-size: 250% 250%;
-      animation: gradientMove 10s infinite alternate ease-in-out;
-    }
-  `}
+      @keyframes gradientMove {
+        0% { background-position: 0% 40%; }
+        50% { background-position: 100% 60%; }
+        100% { background-position: 0% 40%; }
+      }
+      .animate-gradientMove {
+        background-size: 250% 250%;
+        animation: gradientMove 10s infinite alternate ease-in-out;
+      }
+    `}
       </style>
 
       <div className="flex w-full gap-3 h-[calc(100dvh-200px)] md:flex-row flex-col">
